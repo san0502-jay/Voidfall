@@ -10,6 +10,8 @@ Enemy::Enemy() {
      };
     speed = 100.0f;
 
+    active = true;
+
 }
 
 void Enemy::Update(Vector2 PlayerPosition) {

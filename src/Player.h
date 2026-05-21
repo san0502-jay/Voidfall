@@ -11,6 +11,10 @@ class Player {
 
     float radius;
 
+    int health;
+
+    int xp;
+
     Player();
 
 

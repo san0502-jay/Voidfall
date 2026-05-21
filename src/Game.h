@@ -5,6 +5,7 @@
 #include "Enemy.h"
 #include "Player.h"
 #include "Projectile.h"
+#include "XP_Orb.h"
 
 class Game {
     public:
@@ -21,6 +22,7 @@ private:
     Player Player;
     std::vector<Enemy> enemies;
     std::vector<Projectile> projectiles;
+    std::vector<XPOrb> xpOrbs;
     float enemySpawnTimer;
     float enemySpawnInterval;
     float shootTimer;

@@ -5,6 +5,8 @@ Player::Player() {
     position = {400,350};
     speed = 300.0f;
     radius = 45.0f;
+    health = 100.0f;
+    xp = 0;
 }
 
 void Player::Update() {
@@ -21,5 +23,5 @@ void Player::Update() {
 
 void Player::Draw() {
 
-    DrawRectangle(position.x, position.y, radius, radius,RED);
+    DrawRectangle(position.x - 20, position.y - 20, radius, radius,RED);
 }

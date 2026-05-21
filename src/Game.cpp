@@ -1,8 +1,8 @@
 #include "Game.h"
-#include<raymath.h>
+#include <raymath.h>
 #include <cmath>
 #include <math.h>
-
+#include <algorithm>
 
 Game::Game() {
     camera.target = Player.position;
@@ -65,6 +65,13 @@ void Game::Update() {
         for (Enemy& enemy : enemies) {
             float distance = Vector2Distance(Player.position,enemy.position);
 
+            if (distance < 60)
+            {
+                Player.health -= 1;
+
+                //enemy.active = false;
+            }
+
             if (distance < closestDistance) {
                 closestDistance = distance;
                 nearestEnemy = &enemy;
@@ -87,6 +94,37 @@ void Game::Update() {
         projectile.Update();
     }
 
+    for (Projectile& projectile : projectiles) {
+        for (Enemy& enemy : enemies) {
+            if (enemy.active && projectile.active) {
+                float distance = Vector2Distance(projectile.position,enemy.position);
+                if (distance < 15) {
+                    enemy.active = false;
+                    XPOrb orb(enemy.position);
+                    xpOrbs.push_back(orb);
+                    projectile.active = false;
+                }
+            }
+        }
+    }
+
+    for (XPOrb& orb : xpOrbs) {
+        float distance = Vector2Distance(Player.position,orb.position);
+        if (distance < 40) {
+            Player.xp += orb.value;
+            orb.active = false;
+        }
+    }
+
+    auto isDead = [](auto& x){ return !x.active; };
+
+    projectiles.erase(
+        std::remove_if(projectiles.begin(),projectiles.end(),isDead),projectiles.end());
+
+    enemies.erase(
+        std::remove_if(enemies.begin(),enemies.end(),isDead),enemies.end());
+
+    xpOrbs.erase(std::remove_if(xpOrbs.begin(),xpOrbs.end(),isDead),xpOrbs.end());
 }
 
 void Game::Draw() {
@@ -104,13 +142,45 @@ void Game::Draw() {
     }
     for (Enemy& enemy : enemies) {
         {
-            enemy.Draw();
+            if (enemy.active) {
+                enemy.Draw();
+            }
         }
     }
 
     for (Projectile& projectile : projectiles)
     {
-        projectile.Draw();
+        if (projectile.active) {
+            projectile.Draw();
+        }
     }
+
+    DrawText(
+    TextFormat("Health: %i",Player.health),
+    camera.target.x - 300,
+    camera.target.y - 160,
+    20,
+    WHITE
+);
+    for (XPOrb& orb : xpOrbs) {
+        {
+            if (orb.active) {
+                orb.Draw();
+            }
+        }
+    }
+    DrawText(
+    TextFormat("XP: %i", Player.xp),
+    camera.target.x - 300,
+    camera.target.y - 130,
+    20,
+    GREEN
+);
     Player.Draw();
+    DrawCircleLines(
+    Player.position.x,
+    Player.position.y,
+    40,
+    GREEN
+);
 }

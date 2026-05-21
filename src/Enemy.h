@@ -8,6 +8,8 @@ public:
 
     float speed;
 
+    bool active;
+
     Enemy();
 
 
