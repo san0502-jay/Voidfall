@@ -15,8 +15,13 @@ class Player {
 
     int xp;
 
-    Player();
+    int level;
 
+    int xpToNextLevel;
+
+    float fireRate;
+
+    Player();
 
     void Update();
 

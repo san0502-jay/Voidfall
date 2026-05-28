@@ -10,5 +10,5 @@ XPOrb::XPOrb(Vector2 spawnPosition) {
 
 
 void XPOrb::Draw() {
-    DrawCircle(position.x,position.y,6,GREEN);
+    DrawCircle(position.x,position.y,6,PINK);
 }

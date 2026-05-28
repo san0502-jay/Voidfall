@@ -5,8 +5,8 @@
 Enemy::Enemy() {
 
     position= {
-        ( float)GetRandomValue(0,800),
-        ( float)GetRandomValue(0,600)
+        (float)GetRandomValue(0,800),
+        (float)GetRandomValue(0,600)
      };
     speed = 100.0f;
 

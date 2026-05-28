@@ -3,10 +3,13 @@
 
 Player::Player() {
     position = {400,350};
-    speed = 300.0f;
+    speed = 250.0f;
     radius = 45.0f;
     health = 100.0f;
     xp = 0;
+    level = 1;
+    xpToNextLevel = 100;
+    fireRate = 0.5;
 }
 
 void Player::Update() {
