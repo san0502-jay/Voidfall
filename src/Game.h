@@ -36,6 +36,7 @@ private:
     float enemySpawnInterval;
     float shootTimer;
     float shootInterval;
+    float difficultyTimer;
 
 
 

@@ -8,6 +8,8 @@ public:
 
     float speed;
 
+    int health;
+
     bool active;
 
     Enemy();

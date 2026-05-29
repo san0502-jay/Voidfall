@@ -10,6 +10,8 @@ Player::Player() {
     level = 1;
     xpToNextLevel = 100;
     fireRate = 0.5;
+    damageCooldown = 0.5f;
+    damageTimer = 0.0f;
 }
 
 void Player::Update() {

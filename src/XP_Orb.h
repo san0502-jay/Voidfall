@@ -1,6 +1,7 @@
 #pragma once
 
 #include<raylib.h>
+#include "raymath.h"
 
 class XPOrb {
     public:
@@ -10,6 +11,8 @@ class XPOrb {
     bool active;
 
     XPOrb(Vector2 spawnPosition);
+
+    void update(Vector2 playerPosition);
 
     void Draw();
 };

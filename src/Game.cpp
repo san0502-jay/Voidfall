@@ -18,10 +18,11 @@ Game::Game() {
     upgradeButton2 = {325, 200, 150, 200};
     upgradeButton3 = {500, 200, 150, 200};
 
-    enemySpawnTimer = config.enemySpawnTimer;
-    enemySpawnInterval = config.enemySpawnInterval;
+    enemySpawnTimer = 0.0f;
+    enemySpawnInterval = 1.0f;
     shootTimer = 0.0f;
     shootInterval = 0.5f;
+    difficultyTimer = 0.0f;
 
 
 
@@ -115,10 +116,21 @@ void Game::Update() {
     camera.zoom = config.cameraZoom;
     enemySpawnTimer += GetFrameTime();
     shootTimer += GetFrameTime();
+    difficultyTimer += GetFrameTime();
+    player.damageTimer += GetFrameTime();
 
 
     if (currentGameState == GameState::playing) {
         player.Update();
+
+        if (difficultyTimer >= 5.0f) {
+            difficultyTimer = 0.0f;
+            enemySpawnInterval -= 0.1f;
+
+            if (enemySpawnInterval < 0.2f) {
+                enemySpawnInterval = 0.2f;
+            }
+        }
 
         if (enemySpawnTimer >= enemySpawnInterval)
         {
@@ -159,9 +171,12 @@ void Game::Update() {
 
                 if (distance < 60)
                 {
-                    player.health -= 1;
+                    if(player.damageTimer >= player.damageCooldown)
+                    {
+                        player.health--;
 
-                    //enemy.active = false;
+                        player.damageTimer = 0.0f;
+                    }
                 }
 
                 if (distance < closestDistance) {
@@ -190,22 +205,35 @@ void Game::Update() {
             for (Enemy& enemy : enemies) {
                 if (enemy.active && projectile.active) {
                     float distance = Vector2Distance(projectile.position,enemy.position);
-                    if (distance < 15) {
-                        enemy.active = false;
-                        XPOrb orb(enemy.position);
-                        xpOrbs.push_back(orb);
+                    if (distance < 15)
+                    {
+                        enemy.health--;
+
                         projectile.active = false;
+
+                        if (enemy.health <= 0)
+                        {
+                            enemy.active = false;
+
+                            XPOrb orb(enemy.position);
+
+                            xpOrbs.push_back(orb);
+                        }
+
+                        break;
                     }
                 }
             }
         }
 
         for (XPOrb& orb : xpOrbs) {
+            orb.update(player.position);
             float distance = Vector2Distance(player.position,orb.position);
             if (distance < 40) {
                 player.xp += orb.value;
                 orb.active = false;
             }
+
         }
     }
 
@@ -361,6 +389,30 @@ void Game::DrawUI() {
             WHITE
         );
     }
+
+    DrawText(
+    TextFormat("Spawn: %.2f", enemySpawnInterval),
+    20,
+    100,
+    20,
+    ORANGE
+);
+    DrawText(
+    TextFormat("Difficulty: %.2f", difficultyTimer),
+    20,
+    160,
+    20,
+    WHITE
+);
+    DrawText(
+    TextFormat("FireSpeed: %.2f", player.fireRate),
+    20,
+    190,
+    20,
+    WHITE
+);
+
+
 
 }
 

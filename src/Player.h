@@ -21,6 +21,10 @@ class Player {
 
     float fireRate;
 
+    float damageCooldown;
+    
+    float damageTimer;
+
     Player();
 
     void Update();

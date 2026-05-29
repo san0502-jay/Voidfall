@@ -10,6 +10,8 @@ Enemy::Enemy() {
      };
     speed = 100.0f;
 
+    health = 3;
+
     active = true;
 
 }
