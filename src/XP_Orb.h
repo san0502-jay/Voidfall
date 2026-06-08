@@ -10,7 +10,7 @@ class XPOrb {
     int value;
     bool active;
 
-    XPOrb(Vector2 spawnPosition);
+    XPOrb(Vector2 spawnPosition,int value);
 
     void update(Vector2 playerPosition);
 

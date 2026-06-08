@@ -37,6 +37,9 @@ private:
     float shootTimer;
     float shootInterval;
     float difficultyTimer;
+    int threat;
+    bool bossAlive;
+    float bossRollTimer;
 
 
 

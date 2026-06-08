@@ -1,5 +1,10 @@
 #include <raylib.h>
 
+
+enum class EnemyType {
+    Normal,Fast,Tank,Boss
+};
+
 class Enemy{
 
 public:
@@ -8,11 +13,25 @@ public:
 
     float speed;
 
+    float radius;
+
     int health;
 
     bool active;
 
-    Enemy();
+    EnemyType type;
+
+    int xpReward;
+
+    float hitFlashTimer;
+
+    bool isHit;
+
+    int damage;
+
+    Color color;
+
+    Enemy(EnemyType enemyType);
 
 
     void Update(Vector2 playerPosition);

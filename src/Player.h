@@ -13,6 +13,8 @@ class Player {
 
     int health;
 
+    int maxhealth;
+
     int xp;
 
     int level;

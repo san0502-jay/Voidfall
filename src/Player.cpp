@@ -6,6 +6,7 @@ Player::Player() {
     speed = 250.0f;
     radius = 45.0f;
     health = 100.0f;
+    maxhealth = 100.0f;
     xp = 0;
     level = 1;
     xpToNextLevel = 100;

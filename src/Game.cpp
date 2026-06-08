@@ -1,8 +1,8 @@
 #include "Game.h"
 #include <raymath.h>
 #include <cmath>
-#include <math.h>
 #include <algorithm>
+#include <iostream>
 
 Game::Game() {
     camera.target = player.position;
@@ -23,6 +23,9 @@ Game::Game() {
     shootTimer = 0.0f;
     shootInterval = 0.5f;
     difficultyTimer = 0.0f;
+    threat = 0;
+    bossAlive = false;
+    bossRollTimer = 0.0f;
 
 
 
@@ -66,7 +69,7 @@ void Game::HandleInput(bool& shouldExit) {
     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
 )
         {
-            player.fireRate -= 0.05f;
+            player.fireRate -= 0.1f;
 
             if (player.fireRate < 0.1f)
             {
@@ -87,7 +90,7 @@ void Game::HandleInput(bool& shouldExit) {
     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
 )
         {
-            player.speed += 25.0f;
+            player.speed *= 1.25f;
 
             currentGameState = GameState::playing;
         }
@@ -102,8 +105,8 @@ void Game::HandleInput(bool& shouldExit) {
     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
 )
         {
+            player.maxhealth += 25;
             player.health += 25;
-
             currentGameState = GameState::playing;
         }
     }
@@ -118,6 +121,7 @@ void Game::Update() {
     shootTimer += GetFrameTime();
     difficultyTimer += GetFrameTime();
     player.damageTimer += GetFrameTime();
+    bossRollTimer += GetFrameTime();
 
 
     if (currentGameState == GameState::playing) {
@@ -127,8 +131,8 @@ void Game::Update() {
             difficultyTimer = 0.0f;
             enemySpawnInterval -= 0.1f;
 
-            if (enemySpawnInterval < 0.2f) {
-                enemySpawnInterval = 0.2f;
+            if (enemySpawnInterval < 0.5f) {
+                enemySpawnInterval = 0.5f;
             }
         }
 
@@ -148,11 +152,43 @@ void Game::Update() {
                 player.position.y + sin(angle) * distance
             };
 
-            Enemy enemy;
+            int enemyRoll = GetRandomValue(0, 9);
+            EnemyType enemyType;
+
+            if(enemyRoll < 6)
+            {
+                enemyType = EnemyType::Normal;
+            }
+            else if(enemyRoll < 9)
+            {
+                enemyType = EnemyType::Fast;
+            }
+            else {
+                enemyType = EnemyType::Tank;
+            }
+
+            Enemy enemy(enemyType);
 
             enemy.position = spawnPosition;
 
-            enemies.push_back(enemy);
+            enemies.push_back(enemyType);
+        }
+        for (Enemy& enemyA :enemies) {
+            for (Enemy& enemyB : enemies) {
+                if (&enemyA == &enemyB)
+                    continue;
+
+                float distance = Vector2Distance(enemyA.position,enemyB.position);
+                float minDistance = 25.0f;
+
+                if (distance < minDistance) {
+                    Vector2 push  = {enemyA.position.x - enemyB.position.x, enemyA.position.y - enemyB.position.y};
+                    push = Vector2Normalize(push);
+
+                    enemyA.position.x += push.x * 50 * GetFrameTime();
+                    enemyA.position.y += push.y * 50 * GetFrameTime();
+                }
+            }
         }
 
         for (Enemy& enemy : enemies)
@@ -167,15 +203,22 @@ void Game::Update() {
 
 
             for (Enemy& enemy : enemies) {
+                if (!enemy.active)
+                    continue;
                 float distance = Vector2Distance(player.position,enemy.position);
+                float collisionRadius = player.radius + enemy.radius;
 
-                if (distance < 60)
+                if (distance < collisionRadius)
                 {
                     if(player.damageTimer >= player.damageCooldown)
                     {
-                        player.health--;
-
+                        player.health = player.health - enemy.damage;
+                        std::cout << player.health << std::endl;
+                        std::cout << enemy.damage << std::endl;
                         player.damageTimer = 0.0f;
+                        if (player.health <= 0 ) {
+                            currentGameState = GameState::GameOver;
+                        }
                     }
                 }
 
@@ -208,14 +251,28 @@ void Game::Update() {
                     if (distance < 15)
                     {
                         enemy.health--;
+                        enemy.isHit = true;
+                        enemy.hitFlashTimer = 0.1f;
+                        Vector2 knockbaack = {enemy.position.x - projectile.position.x,enemy.position.y - projectile.position.y};
+
+                        knockbaack = Vector2Normalize(knockbaack);
+
+                        enemy.position.x += knockbaack.x * 20;
+                        enemy.position.y += knockbaack.y * 20;
 
                         projectile.active = false;
 
                         if (enemy.health <= 0)
                         {
+                            if (enemy.type == EnemyType::Boss)
+                            {
+                                bossAlive = false;
+                            }
                             enemy.active = false;
 
-                            XPOrb orb(enemy.position);
+                            threat += enemy.xpReward;
+
+                            XPOrb orb(enemy.position,enemy.xpReward);
 
                             xpOrbs.push_back(orb);
                         }
@@ -225,11 +282,25 @@ void Game::Update() {
                 }
             }
         }
+        if (!bossAlive && threat >= 500 && bossRollTimer >= 2.0f) {
+            bossRollTimer = 0.0f;
+            int roll = GetRandomValue(0,99);
+
+            if (roll < 25) {
+                Enemy boss(EnemyType::Boss);
+
+                boss.position ={
+                player.position.x + 100, player.position.x};
+                enemies.push_back(boss);
+                bossAlive = true;
+                threat = 0;
+            }
+        }
 
         for (XPOrb& orb : xpOrbs) {
             orb.update(player.position);
             float distance = Vector2Distance(player.position,orb.position);
-            if (distance < 40) {
+            if (distance < 50) {
                 player.xp += orb.value;
                 orb.active = false;
             }
@@ -237,10 +308,10 @@ void Game::Update() {
         }
     }
 
-        if (player.xp >= player.xpToNextLevel) {
+        if (currentGameState == GameState::playing && player.xp >= player.xpToNextLevel) {
             player.level++;
             player.xp -= player.xpToNextLevel;
-            player.xpToNextLevel +=  50;
+            player.xpToNextLevel = static_cast<int> (player.xpToNextLevel * 1.45f);
             currentGameState = GameState::levelup;
         }
 
@@ -318,7 +389,11 @@ void Game::DrawUI() {
 
     }
     DrawText(
-    TextFormat("Health: %i",player.health),
+    TextFormat(
+        "HP: %i / %i",
+        player.health,
+        player.maxhealth
+    ),
     30,
     15,
     20,
@@ -411,13 +486,19 @@ void Game::DrawUI() {
     20,
     WHITE
 );
-
+    DrawText(
+        TextFormat("Threat: %d", threat),
+        20,
+        320,
+        20,
+        ORANGE
+    );
 
 
 }
 
 void Game::Reset() {
     player.xp = 0;
-    player.health = 0;
+    player.health = 100;
     player.level = 0;
 }

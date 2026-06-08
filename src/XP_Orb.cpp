@@ -1,9 +1,9 @@
 #include "XP_Orb.h"
 
-XPOrb::XPOrb(Vector2 spawnPosition) {
+XPOrb::XPOrb(Vector2 spawnPosition,int value) {
     position = spawnPosition;
 
-    value = 10;
+    this->value = value;
 
     active = true;
 }
