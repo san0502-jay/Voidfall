@@ -10,7 +10,7 @@ Player::Player() {
     xp = 0;
     level = 1;
     xpToNextLevel = 100;
-    fireRate = 0.5;
+    weapon.fireRate = 0.5;
     damageCooldown = 0.5f;
     damageTimer = 0.0f;
 }

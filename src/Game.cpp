@@ -69,11 +69,11 @@ void Game::HandleInput(bool& shouldExit) {
     IsMouseButtonPressed(MOUSE_LEFT_BUTTON)
 )
         {
-            player.fireRate -= 0.1f;
+            player.weapon.fireRate -= 0.1f;
 
-            if (player.fireRate < 0.1f)
+            if (player.weapon.fireRate < 0.1f)
             {
-                player.fireRate = 0.1f;
+                player.weapon.fireRate = 0.1f;
             }
 
             currentGameState = GameState::playing;
@@ -196,7 +196,7 @@ void Game::Update() {
             enemy.Update(player.position);
         }
 
-        if (shootTimer >= player.fireRate) {
+        if (shootTimer >= player.weapon.fireRate) {
             shootTimer = 0.0f;
             Enemy* nearestEnemy = nullptr;
             float closestDistance = 999999.0f;
@@ -250,7 +250,7 @@ void Game::Update() {
                     float distance = Vector2Distance(projectile.position,enemy.position);
                     if (distance < 15)
                     {
-                        enemy.health--;
+                        enemy.health -= player.weapon.damage;
                         enemy.isHit = true;
                         enemy.hitFlashTimer = 0.1f;
                         Vector2 knockbaack = {enemy.position.x - projectile.position.x,enemy.position.y - projectile.position.y};
@@ -480,7 +480,7 @@ void Game::DrawUI() {
     WHITE
 );
     DrawText(
-    TextFormat("FireSpeed: %.2f", player.fireRate),
+    TextFormat("FireSpeed: %.2f", player.weapon.fireRate),
     20,
     190,
     20,

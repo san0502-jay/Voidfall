@@ -23,7 +23,9 @@ add_executable(Voidfall src/main.cpp
         src/Projectile.h
         src/Projectile.cpp
         src/XP_Orb.h
-        src/XP_Orb.cpp)
+        src/XP_Orb.cpp
+        src/Weapon.h
+        src/Weapon.cpp)
 
 target_link_libraries(Voidfall PRIVATE raylib)
 #target_link_options(Voidfall PRIVATE -static-libgcc -static-libstdc++ -static)

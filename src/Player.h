@@ -1,4 +1,5 @@
 #include <raylib.h>
+#include "Weapon.h"
 #include "config.h"
 
 class Player {
@@ -21,11 +22,11 @@ class Player {
 
     int xpToNextLevel;
 
-    float fireRate;
-
     float damageCooldown;
     
     float damageTimer;
+
+    Weapon weapon;
 
     Player();
 
